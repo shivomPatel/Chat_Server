@@ -1,4 +1,5 @@
 import java.io.*;
+import java.net.InetAddress;
 import java.net.Socket;
 
 // added import statements
@@ -14,22 +15,28 @@ final public class ChatClient {
     private final String username;
     private final int port;
 
-    private ChatClient(String server, int port, String username) {
+    private ChatClient(String username, int port, String server) {
         this.server = server;
         this.port = port;
         this.username = username;
+
+
     }
+
 
     /*
      * This starts the Chat Client
      */
     private boolean start() {
+
         // Create a socket
         try {
             socket = new Socket(server, port);
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        System.out.println("Connection accepted " + socket.getInetAddress()+ ":" + port);
 
         // Create your input and output streams
         try {
@@ -82,18 +89,63 @@ final public class ChatClient {
         // Get proper arguments and override defaults
         Scanner in = new Scanner(System.in);
 
-        String input = in.nextLine();
-
-        String[] entry = input.split(" ");
 
 
+        Socket socket;
+        BufferedWriter writer;
+        String message;
+
+        String server = "localhost";
+        int port = 1500;
+        String username = "Anonymous";
+
+        if (args.length == 1) {
+            username = args[0];
+        }
+
+        if (args.length == 2) {
+            username = args[0];
+            port = Integer.parseInt(args[1]);
+        }
+
+        if (args.length == 3) {
+            username = args[0];
+            port = Integer.parseInt(args[1]);
+            server = args[2];
+        }
 
         // Create your client and start it
-        ChatClient client = new ChatClient("localhost", 1500, "CS 180 Student");
+        ChatClient client = new ChatClient(username, port, server);
+
+
+
         client.start();
 
         // Send an empty message to the server
-        client.sendMessage(new ChatMessage());
+
+        while (true) {
+            System.out.print("> ");
+            message = in.nextLine();
+
+            try {
+
+                if (message.equalsIgnoreCase("/logout")) {
+                    client.sendMessage(new ChatMessage(message, 1));
+                    client.sInput.close();
+                    client.sOutput.close();
+                    client.socket.close();
+
+                }
+
+                client.sendMessage(new ChatMessage(message, 0));
+
+
+            } catch (IOException e) {
+                System.out.println("Something went wrong in the main of chatClient");
+            }
+        }
+
+
     }
 
 
@@ -105,15 +157,16 @@ final public class ChatClient {
     private final class ListenFromServer implements Runnable {
         public void run() {
 
-
-            while(true) { // edit: 2
-                try {
+            try {
+                while (true) {
                     String msg = (String) sInput.readObject();
-                    System.out.print(msg);
-                } catch (IOException | ClassNotFoundException e) {
-                    e.printStackTrace();
+                    System.out.print(msg + "\n");
                 }
+
+            } catch (IOException | ClassNotFoundException e) {
+                e.printStackTrace();
             }
+
         }
     }
 
