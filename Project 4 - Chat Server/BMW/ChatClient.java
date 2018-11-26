@@ -37,7 +37,9 @@ final class ChatClient {
             sInput = new ObjectInputStream(socket.getInputStream());
             sOutput = new ObjectOutputStream(socket.getOutputStream());
         } catch (IOException e) {
-            e.printStackTrace();
+//            e.printStackTrace();
+            System.out.println("There was a connection error!");
+            return false;
         }
 
         // This thread will listen from the server for incoming messages
@@ -50,7 +52,9 @@ final class ChatClient {
             sOutput.writeObject(username);
 
         } catch (IOException e) {
-            e.printStackTrace();
+//            e.printStackTrace();
+            System.out.println("Something went wrong with connecting to the server!");
+            return false;
         }
 
         return true;
@@ -64,7 +68,8 @@ final class ChatClient {
         try {
             sOutput.writeObject(msg);
         } catch (IOException e) {
-            e.printStackTrace();
+//            e.printStackTrace();
+            System.out.println("Could not send message to the server!");
         }
     }
 

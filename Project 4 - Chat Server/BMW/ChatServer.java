@@ -30,6 +30,7 @@ final class ChatServer {
         System.out.println("Starting server...");
         try {
             ServerSocket serverSocket = new ServerSocket(port);
+            System.out.println("Server waiting for Clients on port " + port + ".");
 
             while (true) {
                 Socket socket = serverSocket.accept();
@@ -37,9 +38,11 @@ final class ChatServer {
                 Thread t = new Thread(r);
                 clients.add((ClientThread) r);
                 t.start();
+                System.out.println("Server waiting for Clients on port " + port + ".");
             }
         } catch (IOException e) {
-            e.printStackTrace();
+//            e.printStackTrace();
+            System.out.println("Could not start server on given port!");
         }
     }
 
@@ -61,7 +64,6 @@ final class ChatServer {
         }
 
         ChatServer server = new ChatServer(port_number, fileName);
-        // TODO maybe check if port already being used
         server.start();
     }
 
@@ -162,6 +164,8 @@ final class ChatServer {
                         }
                     }
                 }
+
+                System.out.println(username + " just connected.");
 
             } catch (IOException | ClassNotFoundException e) {
                 e.printStackTrace();
