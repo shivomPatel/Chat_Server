@@ -140,6 +140,29 @@ final class ChatServer {
                 sOutput = new ObjectOutputStream(socket.getOutputStream());
                 sInput = new ObjectInputStream(socket.getInputStream());
                 username = (String) sInput.readObject();
+
+                // Check if username is unique
+                for (ClientThread thread: clients) {
+                    if (thread.username.equals(this.username)) {
+                        boolean notFound = true;
+                        int i = 1;
+                        while (notFound) {
+                            boolean done = true;
+                            for (ClientThread thread1: clients) {
+                                if (thread1.username.equals(this.username + i)) {
+                                    i++;
+                                    done = false;
+                                    break;
+                                }
+                            }
+                            if (done) {
+                                username = username + i;
+                                notFound = false;
+                            }
+                        }
+                    }
+                }
+
             } catch (IOException | ClassNotFoundException e) {
                 e.printStackTrace();
             }
@@ -165,7 +188,9 @@ final class ChatServer {
             try {
                 cm = (ChatMessage) sInput.readObject();
             } catch (IOException | ClassNotFoundException e) {
-                e.printStackTrace();
+//                e.printStackTrace();
+                close();
+                return;
             }
 
             while (cm != null) {
@@ -185,7 +210,6 @@ final class ChatServer {
                 try {
                     cm = (ChatMessage) sInput.readObject();
                 } catch (IOException | ClassNotFoundException e) {
-                    System.out.println(username + " had a connection issue and disconnected.");
                     close();
                     return;
                 }

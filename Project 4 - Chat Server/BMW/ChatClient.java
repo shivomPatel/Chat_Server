@@ -48,6 +48,7 @@ final class ChatClient {
         // After starting, send the clients username to the server.
         try {
             sOutput.writeObject(username);
+
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -142,8 +143,14 @@ final class ChatClient {
                     System.out.println("Something went wrong with logging out.");
                 }
             } else if (input[0].equals("/msg")) {
-                String to = input[1];
-                client.sendMessage(new ChatMessage(2, input[2], to));
+                if (input.length >= 2) {
+                    String to = input[1];
+                    String output = "";
+                    for (int i = 2; i < input.length; i++) {
+                        output += input[i] + " ";
+                    }
+                    client.sendMessage(new ChatMessage(2, output, to));
+                }
             } else {
                 client.sendMessage(new ChatMessage(0, message));
             }
